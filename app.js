@@ -3,6 +3,7 @@ const ctx = canvas.getContext("2d");
 const color = document.getElementsByClassName("jsColor");
 const range = document.getElementById("jsRange");
 const mode = document.getElementById("jsMode");
+const deleteBtn = document.getElementById("jsDelete");
 const saveBtn = document.getElementById("jsSave");
 
 const CANVAS_SIZE = 500;
@@ -11,6 +12,7 @@ const DEFAULT_COLOR = "#2c2c2c"; // black
 canvas.width = CANVAS_SIZE; //
 canvas.height = CANVAS_SIZE;
 
+fillWhite(); //배경 투명화를 막기 위해 처음에 흰색배경 설정
 ctx.strokeStyle = DEFAULT_COLOR; // default 그리기 색상
 ctx.fillStyle = DEFAULT_COLOR; 
 ctx.lineWidth = 2.5; // default 라인 굵기
@@ -18,6 +20,11 @@ ctx.lineWidth = 2.5; // default 라인 굵기
 let painting = false; //값이 변할 수 있는 painting 선언. default는 false
 let filling = false; // 💛 default는 Paint(그리기) 상태, 현재 fill은 false
 
+
+function fillWhite(){
+    ctx.fillStyle = "white"; //흰색으로
+    ctx.fillRect(0,0, CANVAS_SIZE, CANVAS_SIZE); //흰사각형으로 fill하기
+}
 
 function stopPainting(){
     painting = false; //painting을 멈춤
@@ -59,9 +66,11 @@ function handleModeClick(event){ // 💛
     if(filling==true){ // fill 기능인 상태
         filling = false; // 버튼을 누르면 paint 기능으로 바뀜
         event.target.innerText = "Fill"; // 버튼 내용은 Fill로 바뀜
+        canvas.classList.remove("fill-mode");
     }else{ //default 상태. filling이 false인 상태(=Paint 기능인 상태)
         filling = true; // 버튼을 누르면 fill 기능으로 바뀜
         event.target.innerText = "Paint"; // 버튼 내용은 Paint로 바뀜
+        canvas.classList.add("fill-mode");
     }
 }
 
@@ -103,6 +112,10 @@ if(range){
 if(mode){
     mode.addEventListener("click", handleModeClick);
 };
+
+if(deleteBtn){
+    deleteBtn.addEventListener("click", fillWhite);
+}
 
 if(saveBtn){
     saveBtn.addEventListener("click", handleSaveClick);
