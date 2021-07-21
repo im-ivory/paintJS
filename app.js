@@ -1,13 +1,23 @@
 const canvas = document.getElementById("jsCanvas");
 const ctx = canvas.getContext("2d");
+const color = document.getElementsByClassName("jsColor");
+const range = document.getElementById("jsRange");
+const mode = document.getElementById("jsMode");
+const saveBtn = document.getElementById("jsSave");
 
-canvas.width = 500; //
-canvas.height = 500;
+const CANVAS_SIZE = 500;
+const DEFAULT_COLOR = "#2c2c2c"; // black
 
-ctx.strokeStyle = "#2c2c2c" // default 그리기 색상
+canvas.width = CANVAS_SIZE; //
+canvas.height = CANVAS_SIZE;
+
+ctx.strokeStyle = DEFAULT_COLOR; // default 그리기 색상
+ctx.fillStyle = DEFAULT_COLOR; 
 ctx.lineWidth = 2.5; // default 라인 굵기
 
 let painting = false; //값이 변할 수 있는 painting 선언. default는 false
+let filling = false; // 💛 default는 Paint(그리기) 상태, 현재 fill은 false
+
 
 function stopPainting(){
     painting = false; //painting을 멈춤
@@ -31,9 +41,50 @@ function onMouseMove(event){
 };
 
 function onMouseDown(event){
-    painting = true;
+    painting = true; // 캔버스 클릭하면 그리기 시작
 };
 
+function handleColorClick(event){
+    const newColor = event.target.style.backgroundColor;
+    ctx.strokeStyle = newColor;
+    ctx.fillStyle = newColor; 
+}
+
+function handleRangeClick(event){
+    const range = event.target.value;
+    ctx.lineWidth = range;
+}
+
+function handleModeClick(event){ // 💛
+    if(filling==true){ // fill 기능인 상태
+        filling = false; // 버튼을 누르면 paint 기능으로 바뀜
+        event.target.innerText = "Fill"; // 버튼 내용은 Fill로 바뀜
+    }else{ //default 상태. filling이 false인 상태(=Paint 기능인 상태)
+        filling = true; // 버튼을 누르면 fill 기능으로 바뀜
+        event.target.innerText = "Paint"; // 버튼 내용은 Paint로 바뀜
+    }
+}
+
+function handleFillCanvas(){
+    if(filling){ // filling= true인 상태에서만 실행하기!
+        ctx.fillRect(0,0,CANVAS_SIZE,CANVAS_SIZE);
+    }
+}
+
+function handleCM(event){
+    event.preventDefault(); // 우클릭시 contextmenu 나오는 기본동작 막기
+}
+
+function handleSaveClick(){
+    const image = canvas.toDataURL(); // 그려진 캔버스를 이미지 형식의 URL로 전환해줌(Default는 png파일)
+    const link = document.createElement("a"); //버튼에 연결한 link 생성
+    link.href = image; // <a href="URL"></a> a의 href값은 위의 image URL
+    link.download = "PaintJS"; // link를 여는 대신 "PaintJS"라는 이름으로 다운로드 되게 하기
+    link.click(); // Save 버튼을 누르면 이 다운로드 링크를 누르는것과 같게 함.
+}
+
+//Array.from() -> array 형태로 바꿔줌. color는 요소 이름이라서 아무 단어로 해도 됨
+Array.from(color).forEach(color => color.addEventListener("click", handleColorClick));
 
 
 if(canvas){
@@ -41,4 +92,18 @@ if(canvas){
     canvas.addEventListener("mousedown", startPainting); //마우스가 클릭되었을 때
     canvas.addEventListener("mouseup", stopPainting); //마우스 클릭에서 손 뗐을 때
     canvas.addEventListener("mouseleave", stopPainting); //마우스가 캔버스에서 벗어났을 때
+    canvas.addEventListener("click", handleFillCanvas); //클릭하면 채워지게
+    canvas.addEventListener("contextmenu", handleCM); // contextmenu = 마우스 오른쪽 누르면 나오는 메뉴
 };
+
+if(range){
+    range.addEventListener("input", handleRangeClick);
+};
+
+if(mode){
+    mode.addEventListener("click", handleModeClick);
+};
+
+if(saveBtn){
+    saveBtn.addEventListener("click", handleSaveClick);
+}
